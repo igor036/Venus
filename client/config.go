@@ -11,7 +11,7 @@ type Config struct {
 
 func HandleArgs(args []string) Config {
 
-	if len(args) > 2 { log.Fatal("number of args invalid") }
+	if len(args) > 3 { log.Fatal("number of args invalid") }
 	if len(args) < 2 { log.Fatal("interface name not reported") }
 
 	config := Config {
