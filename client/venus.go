@@ -132,11 +132,8 @@ func main() {
 	if err != nil { log.Fatal(err) }
 
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
-    for packet := range packetSource.Packets() {
-
-		HandlerPkt(packet)
-		
-    }
+	for packet   := range packetSource.Packets() { HandlerPkt(packet) }
+	
 }
 /*
  * OBS: Analisar sómente os quadros
