@@ -11,9 +11,8 @@ type Config struct {
 
 func HandleArgs(args []string) Config {
 
-	if len(args) > 3 { log.Fatal("number of args invalid") }
-	if len(args) < 2 { log.Fatal("interface name not reported") }
-
+	if len(args) > 3 || len(args) < 2 { log.Fatal("number of args invalid") }
+	
 	config := Config {
 		deviceName: "",
 		trainMode:  false,
@@ -31,5 +30,7 @@ func HandleArgs(args []string) Config {
 		}
 	}
 	
+	if config.deviceName == "" { log.Fatal("interface name not reported") }
+
 	return config
 }
