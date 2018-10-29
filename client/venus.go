@@ -12,6 +12,7 @@ import (
 	"github.com/google/gopacket/layers"
 )
 
+var config Config
 const Dot11PobreRequest  layers.Dot11Type = 0x10
 
 type Dot_11_Info struct {
@@ -68,9 +69,7 @@ func CreateDot_11_Info(packet  gopacket.Packet) *Dot_11_Info {
 			
 			if nil != dot11info {
 				dot11info, _ := dot11info.(*layers.Dot11InformationElement)
-				if dot11info.ID == layers.Dot11InformationElementIDSSID {
-					bssid = dot11info.Info
-				}
+				if dot11info.ID == layers.Dot11InformationElementIDSSID { bssid = dot11info.Info }
 			}
 		}
 
@@ -78,6 +77,7 @@ func CreateDot_11_Info(packet  gopacket.Packet) *Dot_11_Info {
 		if radio.DBMAntennaSignal == 0x0  { return nil }
 
 		return &Dot_11_Info { 
+
 			SrcAddress: 		dot11.Address2,
 			DstAddress:			dot11.Address1,	
 			ChannelFrequency: 	uint16(radio.ChannelFrequency),
@@ -85,8 +85,8 @@ func CreateDot_11_Info(packet  gopacket.Packet) *Dot_11_Info {
 			Bssid:				bssid,
 			Signal:				radio.DBMAntennaSignal,
 			Noise: 				radio.DBMAntennaNoise,
-		}
 
+		}
 	}
 
 	return nil
@@ -104,39 +104,42 @@ func HandlerPkt(packet  gopacket.Packet) {
 		fmt.Printf("BSSID: %q\n", dot_11_Info.Bssid)
 		fmt.Printf("SRC Address: %v\n", dot_11_Info.SrcAddress)
 		fmt.Printf("DST Address: %v\n", dot_11_Info.DstAddress)
+		fmt.Printf("Frequency: %d\n", dot_11_Info.ChannelFrequency)
 		fmt.Printf("Signal: %ddbm\n", dot_11_Info.Signal)
 		fmt.Printf("Noise: %ddbm\n", dot_11_Info.Noise)
 		fmt.Printf("\n\n")
 
+		if config.LogFile != nil {
+
+			log := fmt.Sprintf(
+				"[ %d, %d, %d ]\n",
+				dot_11_Info.Signal,
+				dot_11_Info.Noise,
+				dot_11_Info.ChannelFrequency,
+			)
+			
+			config.LogFile.WriteLog(log)
+		}
 	}
 }
 
 func main() {
 
-	if len(os.Args) > 2 {
-		log.Fatal("number of args invalid")
-	} else if len(os.Args) < 2 {
-		log.Fatal("interface name not reported")
-	}
+	config = HandleArgs(os.Args)
 
-	device := os.Args[1]
-	
 	MonitorMode()
 
-    handle, err := pcap.OpenLive(device, 1024, false, 30 * time.Second)
+    handle, err := pcap.OpenLive(config.DeviceName, 1024, false, 30 * time.Second)
 	
     if err != nil {log.Fatal(err) }
-    defer handle.Close()
+	
+	defer handle.Close()
+	defer config.LogFile.File.Close()
 
 	err = handle.SetBPFFilter("type mgt subtype probe-req or type mgt subtype probe-resp")
 	if err != nil { log.Fatal(err) }
 
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	for packet   := range packetSource.Packets() { HandlerPkt(packet) }
-	
+
 }
-/*
- * OBS: Analisar sómente os quadros
- * de request, pois a distância dos AP's para o dispositivo 
- * será definida por meio de configuração
- */
