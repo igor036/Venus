@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"fmt"
+	"net"
+	"bytes"
 )
 
 const CYAN_COLOR string = "\x1b[36;1m"  
@@ -20,8 +22,34 @@ type Log struct {
 type Config struct {
 
 	DeviceName  string
+	Address		net.HardwareAddr
 	LogFile 	*Log
 
+}
+
+func (config* Config) EqualAdress(addr net.HardwareAddr) bool {
+
+	if addr == nil || config.Address == nil {
+		return false
+	}
+
+	return bytes.Equal(addr, config.Address)
+
+}
+
+func (config* Config) CanWrite(addr net.HardwareAddr) bool {
+	return config.LogFile != nil && config.EqualAdress(addr)
+}
+
+func (log* Log) WriteLog(str string) {
+
+	_, err := log.bufferWriter.WriteString(str)
+	log.bufferWriter.Flush()
+
+	if err != nil {
+		
+		fmt.Printf("%s[*] Error when try wirite log: %s%v\n",RED_COLOR,CYAN_COLOR,err)
+    }
 }
 
 func HandleArgs(args []string) Config  {
@@ -30,7 +58,8 @@ func HandleArgs(args []string) Config  {
 	
 	config := Config {
 
-		DeviceName: "",   
+		DeviceName: "", 
+		Address:	nil,
 		LogFile:    nil,
 	}
 
@@ -43,10 +72,18 @@ func HandleArgs(args []string) Config  {
 
 			config.DeviceName = args[i]
 		
+		} else if arg == "-a" {
+
+			hwAddr, err := net.ParseMAC(args[i])
+			if err != nil { log.Fatal(err) }
+
+			config.Address = hwAddr
+
 		} else if arg == "-l" { 
 
-			file, err := os.OpenFile(args[i], os.O_WRONLY, 0666)
+			file, err := os.OpenFile(args[i], os.O_WRONLY|os.O_CREATE, 0666)
 			if err != nil { log.Fatal(err) }
+
 			buffer := bufio.NewWriter(file)
 	
 			config.LogFile = &Log{
@@ -57,23 +94,8 @@ func HandleArgs(args []string) Config  {
 	}
 	
 	if config.DeviceName == "" { log.Fatal("interface name not reported") }
-
+	if config.LogFile 	 == nil { log.Fatal("log filel name not reported") }
+	if config.Address 	 == nil { log.Fatal("adress not reported") }
+	
 	return config
-}
-
-
-func (log* Log) WriteLog(str string) {
-
-	_, err := log.bufferWriter.WriteString(str)
-	log.bufferWriter.Flush()
-
-	if err != nil {
-		
-		fmt.Printf(
-			"%s[*] Error when try wirite log: %s%v\e[0m\n",
-			RED_COLOR,
-			CYAN_COLOR,
-			err,
-		)
-    }
 }

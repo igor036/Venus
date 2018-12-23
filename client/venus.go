@@ -74,7 +74,7 @@ func CreateDot_11_Info(packet  gopacket.Packet) *Dot_11_Info {
 		}
 
 		//false packet
-		if radio.DBMAntennaSignal == 0x0  { return nil }
+		if radio.DBMAntennaSignal >= 0x0  { return nil }
 
 		return &Dot_11_Info { 
 
@@ -109,7 +109,7 @@ func HandlerPkt(packet  gopacket.Packet) {
 		fmt.Printf("Noise: %ddbm\n", dot_11_Info.Noise)
 		fmt.Printf("\n\n")
 
-		if config.LogFile != nil {
+		if config.CanWrite(dot_11_Info.SrcAddress) {
 
 			log := fmt.Sprintf(
 				"[ %d, %d, %d ]\n",
