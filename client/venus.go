@@ -112,7 +112,7 @@ func HandlerPkt(packet  gopacket.Packet) {
 		if config.CanWrite(dot_11_Info.SrcAddress) {
 
 			log := fmt.Sprintf(
-				"[ %d, %d, %d ]\n",
+				"\t[ %d, %d, %d ],\n",
 				dot_11_Info.Signal,
 				dot_11_Info.Noise,
 				dot_11_Info.ChannelFrequency,

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"bytes"
+	"strconv"
 )
 
 const CYAN_COLOR string = "\x1b[36;1m"  
@@ -16,6 +17,8 @@ type Log struct {
 
 	File 	 	 *os.File
 	bufferWriter *bufio.Writer
+	Count		 int
+	CountReading int
 
 }
 
@@ -38,18 +41,38 @@ func (config* Config) EqualAdress(addr net.HardwareAddr) bool {
 }
 
 func (config* Config) CanWrite(addr net.HardwareAddr) bool {
-	return config.LogFile != nil && config.EqualAdress(addr)
+	//return config.LogFile != nil && config.EqualAdress(addr)
+	return true
 }
 
 func (log* Log) WriteLog(str string) {
 
-	_, err := log.bufferWriter.WriteString(str)
+	var err error
+
+	if log.CountReading == 0 {
+
+		_, err = log.bufferWriter.WriteString("[\n")
+		log.bufferWriter.Flush()
+
+	}
+
+	_, err = log.bufferWriter.WriteString(str)
 	log.bufferWriter.Flush()
 
 	if err != nil {
 		
 		fmt.Printf("%s[*] Error when try wirite log: %s%v\n",RED_COLOR,CYAN_COLOR,err)
-    }
+	}
+	
+	log.CountReading ++
+
+	if log.CountReading == log.Count {
+
+		_, err = log.bufferWriter.WriteString("]")
+		log.bufferWriter.Flush()
+		os.Exit(0)
+
+	}
 }
 
 func HandleArgs(args []string) Config  {
@@ -81,14 +104,21 @@ func HandleArgs(args []string) Config  {
 
 		} else if arg == "-l" { 
 
+			//create log and buffer write file
 			file, err := os.OpenFile(args[i], os.O_WRONLY|os.O_CREATE, 0666)
 			if err != nil { log.Fatal(err) }
 
 			buffer := bufio.NewWriter(file)
 	
+			//get count reading
+			i++
+			count, err := strconv.Atoi(args[i])
+
 			config.LogFile = &Log{
 				File: 		  file,
 				bufferWriter: buffer,
+				Count:		  count,
+				CountReading: 0,
 			}
 		}
 	}
