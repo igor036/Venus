@@ -31,12 +31,12 @@ const (
 
 type ConfigJson struct {
 
-	DeviceName    string `json:"deviceName"`
-	LogFileName	  string `json:"logFileName"`
-	LogAddress    string `json:"logAddress"`
-	ServerAddress string `json:"serverAddress"`
-	LogCount	  int	 `json:"logCount"`
-	LogMode		  bool	 `json:"logMode"`
+	DeviceName		string `json:"deviceName"`
+	LogFileName	  	string `json:"logFileName"`
+	LogAddress    	string `json:"logAddress"`
+	ServerAddress 	string `json:"serverAddress"`
+	LogCount	  	int	 `json:"logCount"`
+	LogMode		  	bool	 `json:"logMode"`
 
 }
 
@@ -59,7 +59,7 @@ func (config* Config) EqualAdress(addr net.HardwareAddr) bool {
 }
 
 func (config* Config) CanWriteLog(addr net.HardwareAddr) bool {
-	//return config.LogMode && config.EqualAdress(addr)
+	return config.LogMode && config.EqualAdress(addr)
 	return true
 }
 
