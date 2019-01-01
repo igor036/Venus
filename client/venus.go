@@ -1,8 +1,12 @@
+/*
+ * Author: Igor joaquim dos Santos Lima
+ * Github: https://github.com/igor036
+*/
 package main
 
 import (
-	"net"
 	"os"
+	"net"
 	"log"
 	"fmt"
     "time"
@@ -12,8 +16,12 @@ import (
 	"github.com/google/gopacket/layers"
 )
 
-var config Config
-const Dot11PobreRequest  layers.Dot11Type = 0x10
+var (
+	config Config
+	conn   net.Conn
+)
+
+const DOT_11_POBRE_REQUEST  layers.Dot11Type = 0x10
 
 type Dot_11_Info struct {
 
@@ -57,7 +65,7 @@ func CreateDot_11_Info(packet  gopacket.Packet) *Dot_11_Info {
 		var dotType string 
 		var bssid  []byte 
 	
-		if dot11.Type == Dot11PobreRequest {
+		if dot11.Type == DOT_11_POBRE_REQUEST {
 
 			dotType = "Pobre Request"
 
@@ -109,37 +117,53 @@ func HandlerPkt(packet  gopacket.Packet) {
 		fmt.Printf("Noise: %ddbm\n", dot_11_Info.Noise)
 		fmt.Printf("\n\n")
 
-		if config.CanWrite(dot_11_Info.SrcAddress) {
+		data := fmt.Sprintf(
+			"\t[ %d, %d, %d ],\n",
+			dot_11_Info.Signal,
+			dot_11_Info.Noise,
+			dot_11_Info.ChannelFrequency,
+		)
 
-			log := fmt.Sprintf(
-				"\t[ %d, %d, %d ],\n",
-				dot_11_Info.Signal,
-				dot_11_Info.Noise,
-				dot_11_Info.ChannelFrequency,
-			)
-			
-			config.LogFile.WriteLog(log)
+		if config.CanWriteLog(dot_11_Info.SrcAddress) { 
+			config.LogFile.WriteLog(data) 
+		} else { 
+			conn.Write([]byte (data )) 
 		}
 	}
 }
 
-func main() {
-
-	config = HandleArgs(os.Args)
+func Start() {
 
 	MonitorMode()
 
+	config = HandleConfig()
+
+	if config.LogMode {
+		defer config.LogFile.File.Close()
+	} else {
+		conn = Connection(config.ServerAddress)
+		defer conn.Close()
+	}
+
     handle, err := pcap.OpenLive(config.DeviceName, 1024, false, 30 * time.Second)
 	
-    if err != nil {log.Fatal(err) }
-	
+    if err != nil { log.Fatal(err) }
 	defer handle.Close()
-	defer config.LogFile.File.Close()
 
 	err = handle.SetBPFFilter("type mgt subtype probe-req or type mgt subtype probe-resp")
 	if err != nil { log.Fatal(err) }
 
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	for packet   := range packetSource.Packets() { HandlerPkt(packet) }
+
+}
+
+func main() {
+
+	if len(os.Args) > 1 {
+		RunArg(os.Args[1])
+	} else {
+		Start()
+	}
 
 }

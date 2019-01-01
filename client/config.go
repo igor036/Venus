@@ -1,131 +1,139 @@
+/*
+ * Author: Igor joaquim dos Santos Lima
+ * Github: https://github.com/igor036
+*/
 package main
 
-import ( 
-	"bufio"
-	"log"
-	"os"
+import (
 	"fmt"
+	"bufio" 
+	"os"
+	"log"
 	"net"
 	"bytes"
-	"strconv"
+	"io/ioutil"
+	"os/exec"
+	"encoding/json"
 )
 
-const CYAN_COLOR string = "\x1b[36;1m"  
-const RED_COLOR  string = "\x1b[31;1m"
+const ( 
+	JSON_FILE_NAME 	     string  = "_config.json" 
+	DEFAULT_CONTENT_JSON string = 
+`{	
+	"deviceName":   "wlp1s0",
+	"logFileName":  "log.txt",
+	"logAddress":   "00:00:00:00:00:00",
+	"logCount":      2,
+	"logMode":       true,
+	"serverAddress": "127.0.0.1:180"
+}`
+)
 
-type Log struct {
+type ConfigJson struct {
 
-	File 	 	 *os.File
-	bufferWriter *bufio.Writer
-	Count		 int
-	CountReading int
+	DeviceName    string `json:"deviceName"`
+	LogFileName	  string `json:"logFileName"`
+	LogAddress    string `json:"logAddress"`
+	ServerAddress string `json:"serverAddress"`
+	LogCount	  int	 `json:"logCount"`
+	LogMode		  bool	 `json:"logMode"`
 
 }
 
 type Config struct {
 
-	DeviceName  string
-	Address		net.HardwareAddr
-	LogFile 	*Log
+	DeviceName    string
+	LogMode		  bool
+	LogAddress    net.HardwareAddr
+	ServerAddress string
+	LogFile 	  *Log
 
 }
 
 func (config* Config) EqualAdress(addr net.HardwareAddr) bool {
 
-	if addr == nil || config.Address == nil {
-		return false
-	}
+	if addr == nil || config.LogAddress == nil { return false }
 
-	return bytes.Equal(addr, config.Address)
+	return bytes.Equal(addr, config.LogAddress)
 
 }
 
-func (config* Config) CanWrite(addr net.HardwareAddr) bool {
-	//return config.LogFile != nil && config.EqualAdress(addr)
+func (config* Config) CanWriteLog(addr net.HardwareAddr) bool {
+	//return config.LogMode && config.EqualAdress(addr)
 	return true
 }
 
-func (log* Log) WriteLog(str string) {
+func ReadConfigDotJson() ConfigJson {
 
-	var err error
+	var configJson ConfigJson
 
-	if log.CountReading == 0 {
+    data, err := ioutil.ReadFile(JSON_FILE_NAME)
+    if err != nil { log.Fatal(err) }
+  
+    err = json.Unmarshal(data, &configJson)
+	if err != nil { log.Fatal(err) }
 
-		_, err = log.bufferWriter.WriteString("[\n")
-		log.bufferWriter.Flush()
+	return configJson
 
-	}
-
-	_, err = log.bufferWriter.WriteString(str)
-	log.bufferWriter.Flush()
-
-	if err != nil {
-		
-		fmt.Printf("%s[*] Error when try wirite log: %s%v\n",RED_COLOR,CYAN_COLOR,err)
-	}
-	
-	log.CountReading ++
-
-	if log.CountReading == log.Count {
-
-		_, err = log.bufferWriter.WriteString("]")
-		log.bufferWriter.Flush()
-		os.Exit(0)
-
-	}
 }
 
-func HandleArgs(args []string) Config  {
+func RunArg(arg string) {
 
-	if len(args) < 2 { log.Fatal("number of args invalid") }
-	
-	config := Config {
-
-		DeviceName: "", 
-		Address:	nil,
-		LogFile:    nil,
-	}
-
-	for i := 1; i < len(args); i++ {
+	argFunctions := map[string]func() {
 		
-		arg := args[i]
-		i++
+		"--open-config": func() {
+			_, err := exec.Command("sh","-c",fmt.Sprintf("sudo gedit %s",JSON_FILE_NAME)).Output()
+			if err != nil { log.Fatal(err)  }
+		},
 
-		if arg == "-i" { 
-
-			config.DeviceName = args[i]
-		
-		} else if arg == "-a" {
-
-			hwAddr, err := net.ParseMAC(args[i])
-			if err != nil { log.Fatal(err) }
-
-			config.Address = hwAddr
-
-		} else if arg == "-l" { 
-
-			//create log and buffer write file
-			file, err := os.OpenFile(args[i], os.O_WRONLY|os.O_CREATE, 0666)
+		"--restore-config": func() {
+			
+			file, err := os.OpenFile(JSON_FILE_NAME, os.O_WRONLY|os.O_CREATE, 0666)
 			if err != nil { log.Fatal(err) }
 
 			buffer := bufio.NewWriter(file)
-	
-			//get count reading
-			i++
-			count, err := strconv.Atoi(args[i])
+			_, err = buffer.WriteString(DEFAULT_CONTENT_JSON)
+			buffer.Flush()
 
-			config.LogFile = &Log{
-				File: 		  file,
-				bufferWriter: buffer,
-				Count:		  count,
-				CountReading: 0,
-			}
-		}
+		},
 	}
+
+	fun := argFunctions[arg]
+
+	if fun != nil {
+		fun()
+	} else {
+		log.Fatal("Invalid arg")
+	}
+}
+
+func HandleConfig() Config  {
 	
-	if config.DeviceName == "" { log.Fatal("interface name not reported") }
-	if config.LogFile 	 == nil { log.Fatal("log filel name not reported") }
-	if config.Address 	 == nil { log.Fatal("adress not reported") }
+	configJson := ReadConfigDotJson()
 	
+	//log address
+	hwAddr, err := net.ParseMAC(configJson.LogAddress)
+	if err != nil { log.Fatal(err) }
+
+	//create log and buffer write file
+	file, err := os.OpenFile(configJson.LogFileName, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil { log.Fatal(err) }
+
+	buffer := bufio.NewWriter(file)
+
+	config := Config {
+		DeviceName:    configJson.DeviceName, 
+		LogMode:	   configJson.LogMode,
+		LogAddress:	   hwAddr,
+		ServerAddress: configJson.ServerAddress,
+		LogFile: 	   &Log {
+			File: 		  file,
+			bufferWriter: buffer,
+			Count:		  configJson.LogCount,
+			CountReading: 0,
+		},
+	}
+
+
 	return config
 }
