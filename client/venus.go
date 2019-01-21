@@ -35,12 +35,19 @@ type Dot_11_Info struct {
 
 }
 
+type Request_Data_Analytic {
+
+	Request_values  int8[]
+	Address_Request string
+
+}
+
 func MonitorMode() {
 	
 	cmds := [3]string { 
-		fmt.Sprintf("sudo ifconfig %s down", config.DeviceName), 
-		fmt.Sprintf("sudo iwconfig %s mode monitor", config.DeviceName),
-		fmt.Sprintf("sudo ifconfig %s up", config.DeviceName),
+		"sudo ifconfig wlp1s0 down", 
+		"sudo iwconfig wlp1s0 mode monitor",
+		"sudo ifconfig wlp1s0 up",
 	}
 	
 	for _, cmd := range cmds {
@@ -124,19 +131,19 @@ func HandlerPkt(packet  gopacket.Packet) {
 			dot_11_Info.ChannelFrequency,
 		)
 
-		if config.LogMode && config.CanWriteLog(dot_11_Info.SrcAddress) { 
+		if config.CanWriteLog(dot_11_Info.SrcAddress) { 
 			config.LogFile.WriteLog(data) 
-		} else if !config.LogMode { 
-			conn.Write([]byte (data)) 
+		} else { 
+			conn.Write([]byte (data )) 
 		}
 	}
 }
 
 func Start() {
 
-	config = HandleConfig()
-
 	MonitorMode()
+
+	config = HandleConfig()
 
 	if config.LogMode {
 		defer config.LogFile.File.Close()

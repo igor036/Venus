@@ -3,6 +3,6 @@
     "logFileName": "log.txt",
     "logAddress": "04:D6:AA:51:8A:8E",
     "logCount": 2,
-    "logMode": false,
+    "logMode": true,
     "serverAddress": "127.0.0.1:180"
 }

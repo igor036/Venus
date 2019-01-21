@@ -50,16 +50,11 @@ type Config struct {
 
 }
 
-func (config* Config) EqualAdress(addr net.HardwareAddr) bool {
-
+func (config* Config) CanWriteLog(addr net.HardwareAddr) bool {
+	
 	if addr == nil || config.LogAddress == nil { return false }
 
 	return bytes.Equal(addr, config.LogAddress)
-
-}
-
-func (config* Config) CanWriteLog(addr net.HardwareAddr) bool {
-	return config.LogMode && config.EqualAdress(addr)
 }
 
 func ReadConfigDotJson() ConfigJson {
