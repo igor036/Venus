@@ -38,14 +38,14 @@ type Dot_11_Info struct {
 func MonitorMode() {
 	
 	cmds := [3]string { 
-    fmt.Sprintf("sudo ifconfig %s down", config.DeviceName), 
-    fmt.Sprintf("sudo iwconfig %s mode monitor", config.DeviceName),
-    fmt.Sprintf("sudo ifconfig %s up", config.DeviceName),
+		fmt.Sprintf("sudo ifconfig %s down", config.DeviceName), 
+		fmt.Sprintf("sudo iwconfig %s mode monitor", config.DeviceName),
+		fmt.Sprintf("sudo ifconfig %s up", config.DeviceName),
 	}
 	
 	for _, cmd := range cmds {
-    _, err := exec.Command("sh","-c",cmd).Output()
-    if (err != nil) { log.Fatal(err)  }
+		_, err := exec.Command("sh","-c",cmd).Output()
+		if (err != nil) { log.Fatal(err)  }
 	}
 }
 
