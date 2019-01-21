@@ -25,13 +25,13 @@ const DOT_11_POBRE_REQUEST  layers.Dot11Type = 0x10
 
 type Dot_11_Info struct {
 
-	SrcAddress 			net.HardwareAddr
-	DstAddress 			net.HardwareAddr
-	Type				string
-	Bssid				[]byte
-	ChannelFrequency 	uint16
-	Signal				int8
-	Noise				int8
+	SrcAddress 			 net.HardwareAddr
+	DstAddress 			 net.HardwareAddr
+	Type						 string
+	Bssid						 []byte
+	ChannelFrequency uint16
+	Signal					 int8
+	Noise						 int8
 
 }
 
