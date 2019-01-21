@@ -66,10 +66,10 @@ func ReadConfigDotJson() ConfigJson {
 
 	var configJson ConfigJson
 
-    data, err := ioutil.ReadFile(JSON_FILE_NAME)
-    if err != nil { log.Fatal(err) }
+  data, err := ioutil.ReadFile(JSON_FILE_NAME)
+  if err != nil { log.Fatal(err) }
   
-    err = json.Unmarshal(data, &configJson)
+  err = json.Unmarshal(data, &configJson)
 	if err != nil { log.Fatal(err) }
 
 	return configJson

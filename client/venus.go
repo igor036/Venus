@@ -86,13 +86,13 @@ func CreateDot_11_Info(packet  gopacket.Packet) *Dot_11_Info {
 
 		return &Dot_11_Info { 
 
-			SrcAddress: 		dot11.Address2,
-			DstAddress:			dot11.Address1,	
-			ChannelFrequency: 	uint16(radio.ChannelFrequency),
-			Type:				dotType,
-			Bssid:				bssid,
-			Signal:				radio.DBMAntennaSignal,
-			Noise: 				radio.DBMAntennaNoise,
+			SrcAddress: 			dot11.Address2,
+			DstAddress:				dot11.Address1,	
+			ChannelFrequency: uint16(radio.ChannelFrequency),
+			Type:							dotType,
+			Bssid:						bssid,
+			Signal:						radio.DBMAntennaSignal,
+			Noise: 						radio.DBMAntennaNoise,
 
 		}
 	}
@@ -145,9 +145,9 @@ func Start() {
 		defer conn.Close()
 	}
 
-    handle, err := pcap.OpenLive(config.DeviceName, 1024, false, 30 * time.Second)
+  handle, err := pcap.OpenLive(config.DeviceName, 1024, false, 30 * time.Second)
 	
-    if err != nil { log.Fatal(err) }
+  if err != nil { log.Fatal(err) }
 	defer handle.Close()
 
 	err = handle.SetBPFFilter("type mgt subtype probe-req or type mgt subtype probe-resp")

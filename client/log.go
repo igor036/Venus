@@ -47,10 +47,7 @@ func (log* Log) WriteLog(str string) {
 	_, err = log.bufferWriter.WriteString(str)
 	log.bufferWriter.Flush()
 
-	if err != nil {
-		
-		fmt.Printf("%s[*] Error when try wirite log: %s%v\n",RED_COLOR,CYAN_COLOR,err)
-	}
+	if err != nil { fmt.Printf("%s[*] Error when try wirite log: %s%v\n",RED_COLOR,CYAN_COLOR,err) }
 	
 	log.CountReading ++
 
