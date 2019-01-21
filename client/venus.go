@@ -5,15 +5,15 @@
 package main
 
 import (
-	"os"
-	"net"
-	"log"
-	"fmt"
+  "os"
+  "net"
+  "log"
+  "fmt"
   "time"
-	"os/exec"
+  "os/exec"
   "github.com/google/gopacket"
-	"github.com/google/gopacket/pcap"
-	"github.com/google/gopacket/layers"
+  "github.com/google/gopacket/pcap"
+  "github.com/google/gopacket/layers"
 )
 
 var (

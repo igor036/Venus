@@ -5,8 +5,8 @@
 package main
 
 import (
-	"net"
-	"log"
+  "net"
+  "log"
 )
 
 const PROTOCOL = "tcp"
