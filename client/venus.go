@@ -25,13 +25,13 @@ const DOT_11_POBRE_REQUEST  layers.Dot11Type = 0x10
 
 type Dot_11_Info struct {
 
-	SrcAddress 			 net.HardwareAddr
-	DstAddress 			 net.HardwareAddr
-	Type						 string
-	Bssid						 []byte
+	SrcAddress       net.HardwareAddr
+	DstAddress       net.HardwareAddr
+	Type             string
+	Bssid            []byte
 	ChannelFrequency uint16
-	Signal					 int8
-	Noise						 int8
+	Signal           int8
+	Noise            int8
 
 }
 
@@ -86,13 +86,13 @@ func CreateDot_11_Info(packet  gopacket.Packet) *Dot_11_Info {
 
 		return &Dot_11_Info { 
 
-			SrcAddress: 			dot11.Address2,
-			DstAddress:				dot11.Address1,	
+			SrcAddress:       dot11.Address2,
+			DstAddress:       dot11.Address1,	
 			ChannelFrequency: uint16(radio.ChannelFrequency),
-			Type:							dotType,
-			Bssid:						bssid,
-			Signal:						radio.DBMAntennaSignal,
-			Noise: 						radio.DBMAntennaNoise,
+			Type:             dotType,
+			Bssid:            bssid,
+			Signal:           radio.DBMAntennaSignal,
+			Noise:            radio.DBMAntennaNoise,
 
 		}
 	}

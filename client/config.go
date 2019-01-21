@@ -35,8 +35,8 @@ type ConfigJson struct {
 	LogFileName   string `json:"logFileName"`
 	LogAddress    string `json:"logAddress"`
 	ServerAddress string `json:"serverAddress"`
-	LogCount      int	   `json:"logCount"`
-	LogMode       bool	 `json:"logMode"`
+	LogCount      int    `json:"logCount"`
+	LogMode       bool   `json:"logMode"`
 
 }
 
@@ -65,7 +65,7 @@ func (config* Config) CanWriteLog(addr net.HardwareAddr) bool {
 func ReadConfigDotJson() ConfigJson {
 
 	var configJson ConfigJson
-
+	
   data, err := ioutil.ReadFile(JSON_FILE_NAME)
   if err != nil { log.Fatal(err) }
   
