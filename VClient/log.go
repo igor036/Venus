@@ -5,10 +5,10 @@
 package main
 
 import ( 
-	"log"
-	"bufio"
-	"os"
-	"fmt"
+  "log"
+  "bufio"
+  "os"
+  "fmt"
 )
 
 const CYAN_COLOR string = "\x1b[36;1m"  
