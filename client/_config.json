@@ -1,8 +1,8 @@
 {
-    "deviceName":   "wlp1s0", 
-    "logFileName":  "log.txt",
-    "logAddress":   "04:D6:AA:51:8A:8E",
-    "logCount":      2,
-    "logMode":       true,
+    "deviceName": "wlp1s0",
+    "logFileName": "log.txt",
+    "logAddress": "04:D6:AA:51:8A:8E",
+    "logCount": 2,
+    "logMode": false,
     "serverAddress": "127.0.0.1:180"
 }
