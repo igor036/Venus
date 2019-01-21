@@ -60,7 +60,6 @@ func (config* Config) EqualAdress(addr net.HardwareAddr) bool {
 
 func (config* Config) CanWriteLog(addr net.HardwareAddr) bool {
 	return config.LogMode && config.EqualAdress(addr)
-	return true
 }
 
 func ReadConfigDotJson() ConfigJson {
