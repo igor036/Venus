@@ -31,22 +31,22 @@ const (
 
 type ConfigJson struct {
 
-	DeviceName		string `json:"deviceName"`
+	DeviceName			string `json:"deviceName"`
 	LogFileName	  	string `json:"logFileName"`
 	LogAddress    	string `json:"logAddress"`
 	ServerAddress 	string `json:"serverAddress"`
-	LogCount	  	int	 `json:"logCount"`
-	LogMode		  	bool	 `json:"logMode"`
+	LogCount	  		int	   `json:"logCount"`
+	LogMode		  		bool	 `json:"logMode"`
 
 }
 
 type Config struct {
 
 	DeviceName    string
-	LogMode		  bool
+	LogMode		  	bool
 	LogAddress    net.HardwareAddr
 	ServerAddress string
-	LogFile 	  *Log
+	LogFile 	  	*Log
 
 }
 
