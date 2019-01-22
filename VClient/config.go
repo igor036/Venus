@@ -17,7 +17,7 @@ import (
 )
 
 const ( 
-	JSON_FILE_NAME 	     string  = "_config.json" 
+	JSON_FILE_NAME 	     string  = "resources/config.json" 
 	DEFAULT_CONTENT_JSON string = 
 `{	
 	"deviceName":   "wlp1s0",
