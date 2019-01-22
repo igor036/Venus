@@ -38,11 +38,11 @@ public class Server {
 			server = new ServerSocket(PORT);
 			clients = new LinkedList<>();
 			
+			System.out.printf("Lisen for connections in port %d...\n",PORT);
+			
 		    new Thread(((IOThrowableRunnable)() -> {
 		        
 		        while(running) {
-		            
-		            System.out.printf("Lisen for connections in port %d...\n",PORT);
 		            
 	                Socket client = server.accept();
 	                clients.add(new Client(client));
