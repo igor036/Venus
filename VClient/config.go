@@ -117,13 +117,13 @@ func HandleConfig() Config  {
 
 	config := Config {
 		DeviceName:    configJson.DeviceName, 
-		LogMode:	   configJson.LogMode,
+		LogMode:	     configJson.LogMode,
 		LogAddress:	   hwAddr,
 		ServerAddress: configJson.ServerAddress,
-		LogFile: 	   &Log {
-			File: 		  file,
+		LogFile: &Log {
+			File: 		    file,
 			bufferWriter: buffer,
-			Count:		  configJson.LogCount,
+			Count:		    configJson.LogCount,
 			CountReading: 0,
 		},
 	}
