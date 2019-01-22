@@ -16,10 +16,10 @@ const RED_COLOR  string = "\x1b[31;1m"
 
 type Log struct {
 
-	File 	 	 *os.File
+	File         *os.File
 	bufferWriter *bufio.Writer
-	Count		 int
-	CountReading int
+	Count         int
+	CountReading  int
 
 }
 
