@@ -3,5 +3,5 @@
   <groupId>br.com.linecode</groupId>
   <artifactId>VServer</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>VServer</name>
+  <name>VServer</name> 
 </project>
