@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	config Config
+	config configProperties
 	conn   net.Conn
 )
 
@@ -31,9 +31,9 @@ type dot11Info struct {
 func monitorMode() {
 
 	cmds := [3]string{
-		fmt.Sprintf("sudo ifconfig %s down", config.DeviceName),
-		fmt.Sprintf("sudo iwconfig %s mode monitor", config.DeviceName),
-		fmt.Sprintf("sudo ifconfig %s up", config.DeviceName),
+		fmt.Sprintf("sudo ifconfig %s down", config.deviceName),
+		fmt.Sprintf("sudo iwconfig %s mode monitor", config.deviceName),
+		fmt.Sprintf("sudo ifconfig %s up", config.deviceName),
 	}
 
 	for _, cmd := range cmds {
@@ -92,9 +92,9 @@ func handlerPkt(packet gopacket.Packet) {
 			dot11Info.channelFrequency,
 		)
 
-		if config.LogMode && config.IsLogAddress(dot11Info.srcAddress) {
-			config.LogFile.WriteLog(data)
-		} else if !config.LogMode {
+		if config.logMode && config.isLogAddress(dot11Info.srcAddress) {
+			config.log.WriteLog(data)
+		} else if !config.logMode {
 			conn.Write([]byte(data))
 		}
 	}
@@ -103,18 +103,20 @@ func handlerPkt(packet gopacket.Packet) {
 func start() {
 
 	config = handleConfig()
-
 	monitorMode()
 
-	if !config.LogMode {
-		conn = Connection(config.ServerAddress)
+	if config.logMode {
+		defer config.log.file.Close()
+	} else {
+		conn = Connection(config.serverAddress)
+		defer conn.Close()
 	}
 
-	handle, err := pcap.OpenLive(config.DeviceName, 1024, false, 30*time.Second)
-
+	handle, err := pcap.OpenLive(config.deviceName, 1024, false, 30*time.Second)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	defer handle.Close()
 
 	err = handle.SetBPFFilter("type mgt subtype probe-req")
@@ -126,7 +128,6 @@ func start() {
 	for packet := range packetSource.Packets() {
 		handlerPkt(packet)
 	}
-
 }
 
 func main() {

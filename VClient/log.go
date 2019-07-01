@@ -15,12 +15,7 @@ const (
 	logHeader string = "signal,noise,channelFrequency\n"
 )
 
-// Log is a struct with log file properties
-// File - is a pointer of file
-// BufferWriter - is a buffer writer pointer
-// Count - is the amount of packets that need to be sniffed
-// CountReading - is the amount of packet read
-type Log struct {
+type packetLog struct {
 	file         *os.File
 	bufferWriter *bufio.Writer
 	count        int
@@ -36,13 +31,11 @@ func openFileLog(fileName string) (*os.File, *bufio.Writer) {
 
 	buffer := bufio.NewWriter(file)
 
-	defer file.Close()
-
 	return file, buffer
 }
 
 // WriteLog write data in log file
-func (log *Log) WriteLog(str string) {
+func (log *packetLog) WriteLog(str string) {
 
 	var err error
 

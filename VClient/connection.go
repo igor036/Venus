@@ -19,8 +19,6 @@ func Connection(addr string) net.Conn {
 		log.Fatal(err)
 	}
 
-	defer conn.Close()
-
 	return conn
 
 }

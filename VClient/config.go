@@ -23,36 +23,33 @@ const (
 		"logCount":      2,
 		"logMode":       true,
 		"serverAddress": "127.0.0.1:180"
-	}`
+}`
 )
 
 type configJSON struct {
-	deviceName    string `json:"deviceName"`
-	logFileName   string `json:"logFileName"`
-	logAddress    string `json:"logAddress"`
-	serverAddress string `json:"serverAddress"`
-	logCount      int    `json:"logCount"`
-	logMode       bool   `json:"logMode"`
+	DeviceName    string `json:"deviceName"`
+	LogFileName   string `json:"logFileName"`
+	LogAddress    string `json:"logAddress"`
+	ServerAddress string `json:"serverAddress"`
+	LogCount      int    `json:"logCount"`
+	LogMode       bool   `json:"logMode"`
 }
 
-// Config properties of app
-type Config struct {
-	DeviceName    string
-	LogMode       bool
-	LogAddress    net.HardwareAddr
-	ServerAddress string
-	LogFile       *Log
+type configProperties struct {
+	deviceName    string
+	logMode       bool
+	logAddress    net.HardwareAddr
+	serverAddress string
+	log           *packetLog
 }
 
-// IsLogAddress verify if a Address
-// is the Address of device using for log
-func (config *Config) IsLogAddress(addr net.HardwareAddr) bool {
+func (config *configProperties) isLogAddress(addr net.HardwareAddr) bool {
 
-	if addr == nil || config.LogAddress == nil {
+	if addr == nil || config.logAddress == nil {
 		return false
 	}
 
-	return bytes.Equal(addr, config.LogAddress)
+	return bytes.Equal(addr, config.logAddress)
 }
 
 func readConfigDotJSON() configJSON {
@@ -80,6 +77,7 @@ func runArg(arg string) {
 		"--open-config": func() {
 			_, err := exec.Command("sh", "-c", fmt.Sprintf("sudo gedit %s", configJSONFileName)).Output()
 			if err != nil {
+				fmt.Println("Erro ao abrir arquivo de configuração")
 				log.Fatal(err)
 			}
 		},
@@ -107,25 +105,25 @@ func runArg(arg string) {
 	}
 }
 
-func handleConfig() Config {
+func handleConfig() configProperties {
 
 	configJSON := readConfigDotJSON()
-	file, buffer := openFileLog(configJSON.logFileName)
+	file, buffer := openFileLog(configJSON.LogFileName)
 
-	hwAddr, err := net.ParseMAC(configJSON.logAddress)
+	hwAddr, err := net.ParseMAC(configJSON.LogAddress)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	config := Config{
-		DeviceName:    configJSON.deviceName,
-		LogMode:       configJSON.logMode,
-		LogAddress:    hwAddr,
-		ServerAddress: configJSON.serverAddress,
-		LogFile: &Log{
+	config := configProperties{
+		deviceName:    configJSON.DeviceName,
+		logMode:       configJSON.LogMode,
+		logAddress:    hwAddr,
+		serverAddress: configJSON.ServerAddress,
+		log: &packetLog{
 			file:         file,
 			bufferWriter: buffer,
-			count:        configJSON.logCount,
+			count:        configJSON.LogCount,
 			countReading: 0,
 		},
 	}
