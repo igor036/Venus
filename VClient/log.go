@@ -1,61 +1,66 @@
-/*
- * Author: Igor joaquim dos Santos Lima
- * Github: https://github.com/igor036
-*/
+// Author: Igor joaquim dos Santos Lima
+// Github: https://github.com/igor036
 package main
 
-import ( 
-  "log"
-  "bufio"
-  "os"
-  "fmt"
+import (
+	"bufio"
+	"fmt"
+	"log"
+	"os"
 )
 
-const CYAN_COLOR string = "\x1b[36;1m"  
-const RED_COLOR  string = "\x1b[31;1m"
+const (
+	cyanColor string = "\x1b[36;1m"
+	redColor  string = "\x1b[31;1m"
+	logHeader string = "signal,noise,channelFrequency\n"
+)
 
+// Log is a struct with log file properties
+// File - is a pointer of file
+// BufferWriter - is a buffer writer pointer
+// Count - is the amount of packets that need to be sniffed
+// CountReading - is the amount of packet read
 type Log struct {
-
-	File         *os.File
+	file         *os.File
 	bufferWriter *bufio.Writer
-	Count         int
-	CountReading  int
-
+	count        int
+	countReading int
 }
 
-func OpenFileLog(fileName string) (*os.File, *bufio.Writer ) {
+func openFileLog(fileName string) (*os.File, *bufio.Writer) {
 
 	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	buffer := bufio.NewWriter(file)
 
-	return file, buffer;
+	defer file.Close()
+
+	return file, buffer
 }
 
-func (log* Log) WriteLog(str string) {
+// WriteLog write data in log file
+func (log *Log) WriteLog(str string) {
 
 	var err error
 
-	if log.CountReading == 0 {
-
-		_, err = log.bufferWriter.WriteString("[\n")
+	if log.countReading == 0 {
+		_, err = log.bufferWriter.WriteString(logHeader)
 		log.bufferWriter.Flush()
-
 	}
 
 	_, err = log.bufferWriter.WriteString(str)
 	log.bufferWriter.Flush()
 
-	if err != nil { fmt.Printf("%s[*] Error when try wirite log: %s%v\n",RED_COLOR,CYAN_COLOR,err) }
-	
-	log.CountReading ++
+	if err != nil {
+		fmt.Printf("%s[*] Error when try wirite log: %s%v\n", redColor, cyanColor, err)
+	}
 
-	if log.CountReading == log.Count {
+	log.countReading++
 
-		_, err = log.bufferWriter.WriteString("]")
-		log.bufferWriter.Flush()
+	if log.countReading == log.count {
 		os.Exit(0)
-
 	}
 }
