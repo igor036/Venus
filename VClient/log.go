@@ -12,7 +12,7 @@ import (
 const (
 	cyanColor string = "\x1b[36;1m"
 	redColor  string = "\x1b[31;1m"
-	logHeader string = "signal,noise,channelFrequency\n"
+	logHeader string = "signal,noise,channelFrequency,distance\n"
 )
 
 type packetLog struct {
@@ -24,7 +24,7 @@ type packetLog struct {
 
 func openFileLog(fileName string) (*os.File, *bufio.Writer) {
 
-	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0666)
+	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,23 +37,31 @@ func openFileLog(fileName string) (*os.File, *bufio.Writer) {
 // WriteLog write data in log file
 func (log *packetLog) WriteLog(str string) {
 
-	var err error
-
 	if log.countReading == 0 {
-		_, err = log.bufferWriter.WriteString(logHeader)
-		log.bufferWriter.Flush()
+
+		fileInfo, err := log.file.Stat()
+		assertError(err)
+
+		if fileInfo.Size() == 0 {
+			_, err := log.bufferWriter.WriteString(logHeader)
+			assertError(err)
+			log.bufferWriter.Flush()
+		}
 	}
 
-	_, err = log.bufferWriter.WriteString(str)
+	_, err := log.bufferWriter.WriteString(str)
+	assertError(err)
 	log.bufferWriter.Flush()
-
-	if err != nil {
-		fmt.Printf("%s[*] Error when try wirite log: %s%v\n", redColor, cyanColor, err)
-	}
 
 	log.countReading++
 
 	if log.countReading == log.count {
 		os.Exit(0)
+	}
+}
+
+func assertError(err error) {
+	if err != nil {
+		fmt.Printf("%s[*] Error when try wirite log: %s%v\n", redColor, cyanColor, err)
 	}
 }

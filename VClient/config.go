@@ -22,7 +22,8 @@ const (
 		"logAddress":   "00:00:00:00:00:00",
 		"logCount":      2,
 		"logMode":       true,
-		"serverAddress": "127.0.0.1:180"
+		"serverAddress": "127.0.0.1:180",
+		"distance": 1
 }`
 )
 
@@ -33,6 +34,7 @@ type configJSON struct {
 	ServerAddress string `json:"serverAddress"`
 	LogCount      int    `json:"logCount"`
 	LogMode       bool   `json:"logMode"`
+	Distance      int    `json:"distance"`
 }
 
 type configProperties struct {
@@ -41,6 +43,7 @@ type configProperties struct {
 	logAddress    net.HardwareAddr
 	serverAddress string
 	log           *packetLog
+	distance      int
 }
 
 func (config *configProperties) isLogAddress(addr net.HardwareAddr) bool {
@@ -126,6 +129,7 @@ func handleConfig() configProperties {
 			count:        configJSON.LogCount,
 			countReading: 0,
 		},
+		distance: configJSON.Distance,
 	}
 
 	return config

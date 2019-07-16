@@ -1,8 +1,9 @@
 {
     "deviceName": "wlp1s0",
-    "logFileName": "log.csv",
+    "logFileName": "resources/log.csv",
     "logAddress": "04:D6:AA:51:8A:8E",
     "logCount": 10,
     "logMode": true,
-    "serverAddress": "127.0.0.1:180"
+    "serverAddress": "127.0.0.1:180",
+    "distance": 1
 }

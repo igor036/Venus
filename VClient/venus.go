@@ -76,7 +76,7 @@ func handlerPkt(packet gopacket.Packet) {
 
 	dot11Info := createDot11Info(packet)
 
-	if dot11Info != nil {
+	if dot11Info != nil && isHandlerPkt(dot11Info) {
 
 		fmt.Printf("SRC Address: %v\n", dot11Info.srcAddress)
 		fmt.Printf("DST Address: %v\n", dot11Info.dstAddress)
@@ -86,10 +86,11 @@ func handlerPkt(packet gopacket.Packet) {
 		fmt.Printf("\n\n")
 
 		data := fmt.Sprintf(
-			"%d, %d, %d\n",
+			"%d, %d, %d, %d\n",
 			dot11Info.signal,
 			dot11Info.noise,
 			dot11Info.channelFrequency,
+			config.distance,
 		)
 
 		if config.logMode && config.isLogAddress(dot11Info.srcAddress) {
@@ -98,6 +99,10 @@ func handlerPkt(packet gopacket.Packet) {
 			conn.Write([]byte(data))
 		}
 	}
+}
+
+func isHandlerPkt(dot11Info *dot11Info) bool {
+	return config.logMode && config.isLogAddress(dot11Info.srcAddress) || !config.logMode
 }
 
 func start() {
